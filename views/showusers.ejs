@@ -17,10 +17,11 @@
             <th>Email</th>
             <th>Username</th>
             <td>
-                <form method="post" action="/user">
+                <form method="get" action="/users/new">
                     <button>Create New </button>
                 </form>
             </td>
+            
         </tr>
         
         <% for (user of users) { %>
@@ -29,14 +30,18 @@
             <td><%= user.email %></td>
             <td><%= user.username %></td>
             <td>
-                <form method="GET" action="/user/<%= user.id %>/edit">
+                <form method="get" action="/user/<%= user.id %>/edit">
                     <button>Edit username</button>
+                </form>
+            </td>
+            <td>
+                <form method="get" action="/users/<%= user.id %>/delete">
+                    <button>Delete</button>
                 </form>
             </td>
         </tr>
         <% } %>
-        
     </table>
-    
+
 </body>
 </html>

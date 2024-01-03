@@ -27,7 +27,6 @@ let getRandomUser = () => {
     ];
 };
 
-'Milton_Torp'
 app.get("/", (req, res)=>{
     // res.send("Welcome to home page");
 
@@ -77,7 +76,7 @@ app.get("/user/:id/edit", (req,res)=>{
     }
 });
 
-app.patch("/user/:id", (req,res)=>{
+app.patch("/user/:id",(req,res)=>{
     let {id} = req.params;
     let {password: formPass, username: newUsername} = req.body;
     let q = `SELECT * FROM user WHERE id = '${id}'`;
@@ -104,10 +103,71 @@ app.patch("/user/:id", (req,res)=>{
     }
 });
 
-app.post("/user", (req, res)=>{
-    // res.send("success")
+app.get("/users/new", (req, res)=>{
     res.render("new.ejs");
-})
+});
+
+app.post("/users", (req,res)=>{
+    console.log(req.body);
+    // res.send("post req working")
+    
+    let {id, username, email, password} = req.body;
+    let q = `INSERT INTO User (id, username, email, password) values ('${id}', '${username}', '${email}', '${password}') `;
+    
+    try{
+        connection.query(q, (err, result)=>{
+            if (err) throw err;
+            console.log(result);
+            // req.send("done");
+            res.redirect("/users");
+        });
+    } catch (err){
+        console.log(err);
+    };
+});
+
+app.get("/users/:id/delete", (req,res)=>{
+    let {id} = req.params;
+  
+    let q = `SELECT * FROM user WHERE id = "${id}"`; 
+    try{
+        connection.query(q,(err,result)=>{
+            if(err) throw err;
+            let user = result[0];
+            res.render("delete.ejs", {user});  
+        });
+    }catch(err){
+        console.log(err);
+        res.send("Some error in database");
+    }
+});
+
+app.delete("/users/:id",(req,res)=>{
+    // res.send("Successfull");
+    console.log("success");
+    let {id} = req.params;
+    let {password: formPass} = req.body;
+    
+    let q = `SELECT * FROM user WHERE id = "${id}"`;
+
+    try{
+        connection.query(q, (err, result)=>{
+            if (err) throw err;
+            let user = result[0];
+            if(formPass != user.password){
+                res.send("Wrong Password")
+            }else{
+                let q2 = `DELETE FROM user WHERE id = "${id}"`;
+                connection.query(q2, (err, result)=>{
+                    if (err) throw err;
+                    res.redirect("/users");
+                });
+            }
+        });
+    } catch (err){
+        console.log(err);
+    }
+});
 
 app.listen("8080", ()=>{
     console.log("Server Started at port 8080");
@@ -140,16 +200,11 @@ app.listen("8080", ()=>{
 
 
 
-
-
-
-
-
-
-
-
-
-
+// let user = [id, username, email, password];
+    // let user = [
+    //     ["1245","123_userc", "123@abcd", "abcfc"],
+    //     ["1223y","123_userg", "123@abcg", "abcfg"]
+    // ];
 
 
 // let q = "INSERT INTO user(id, username, email, password) VALUES?";
