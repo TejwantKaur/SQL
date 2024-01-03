@@ -4,6 +4,8 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const methodOverride = require("method-override");
+const { v4: uuidv4 } = require("uuid");
+
 
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({extended: true}));
@@ -111,10 +113,11 @@ app.post("/users", (req,res)=>{
     console.log(req.body);
     // res.send("post req working")
     
-    let {id, username, email, password} = req.body;
+    let { username, email, password } = req.body;
+    let id = uuidv4();
     let q = `INSERT INTO User (id, username, email, password) values ('${id}', '${username}', '${email}', '${password}') `;
     
-    try{
+    try{  
         connection.query(q, (err, result)=>{
             if (err) throw err;
             console.log(result);
@@ -127,36 +130,36 @@ app.post("/users", (req,res)=>{
 });
 
 app.get("/users/:id/delete", (req,res)=>{
-    let {id} = req.params;
-  
+    let { id } = req.params;
     let q = `SELECT * FROM user WHERE id = "${id}"`; 
+    
     try{
-        connection.query(q,(err,result)=>{
-            if(err) throw err;
+        connection.query(q, (err, result) => {
+            if (err) throw err;
             let user = result[0];
-            res.render("delete.ejs", {user});  
+            res.render("delete.ejs", { user });  
         });
-    }catch(err){
+    } catch (err) {
         console.log(err);
         res.send("Some error in database");
     }
 });
 
-app.delete("/users/:id",(req,res)=>{
+app.delete("/users/:id", (req,res) => {
     // res.send("Successfull");
     console.log("success");
-    let {id} = req.params;
-    let {password: formPass} = req.body;
-    
+    let { id } = req.params;
+    let { password : formPass } = req.body;
     let q = `SELECT * FROM user WHERE id = "${id}"`;
 
-    try{
+    try {
         connection.query(q, (err, result)=>{
             if (err) throw err;
             let user = result[0];
+            
             if(formPass != user.password){
                 res.send("Wrong Password")
-            }else{
+            } else {
                 let q2 = `DELETE FROM user WHERE id = "${id}"`;
                 connection.query(q2, (err, result)=>{
                     if (err) throw err;
@@ -165,7 +168,7 @@ app.delete("/users/:id",(req,res)=>{
             }
         });
     } catch (err){
-        console.log(err);
+        res.send("Some error in database");
     }
 });
 
